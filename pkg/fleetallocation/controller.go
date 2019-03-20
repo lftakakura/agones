@@ -49,6 +49,11 @@ var (
 	// ErrNoGameServerReady is returned when there are no Ready GameServers
 	// available
 	ErrNoGameServerReady = errors.New("Could not find a Ready GameServer")
+	// ErrInvalidGameServer is returned when the gameServer requested does not exist
+	ErrInvalidGameServer = errors.New("Could not find the requested GameServer")
+	// ErrMissingGameServerName is returned when there using Manual scheduling strategy
+	// and no gameServerName is requested
+	ErrMissingGameServerName = errors.New("Missing spec.gameServerName")
 )
 
 // Controller is a the FleetAllocation controller
@@ -140,7 +145,7 @@ func (c *Controller) creationMutationHandler(review admv1beta1.AdmissionReview) 
 		return review, errors.Wrapf(err, "error retrieving fleet %s", fa.Name)
 	}
 
-	gs, err := c.allocate(fleet, &fa.Spec.MetaPatch)
+	gs, err := c.allocate(fleet, &fa.Spec.MetaPatch, fa.Spec.GameServerName)
 	if err != nil {
 		review.Response.Allowed = false
 		review.Response.Result = &metav1.Status{
@@ -257,7 +262,7 @@ func (c *Controller) mutationValidationHandler(review admv1beta1.AdmissionReview
 }
 
 // allocate allocated a GameServer from a given Fleet
-func (c *Controller) allocate(f *v1alpha1.Fleet, fam *v1alpha1.MetaPatch) (*v1alpha1.GameServer, error) {
+func (c *Controller) allocate(f *v1alpha1.Fleet, fam *v1alpha1.MetaPatch, gameServerName string) (*v1alpha1.GameServer, error) {
 	var allocation *v1alpha1.GameServer
 	// can only allocate one at a time, as we don't want two separate processes
 	// trying to allocate the same GameServer to different clients
@@ -275,9 +280,19 @@ func (c *Controller) allocate(f *v1alpha1.Fleet, fam *v1alpha1.MetaPatch) (*v1al
 
 	switch f.Spec.Scheduling {
 	case v1alpha1.Packed:
-		allocation = findReadyGameServerForAllocation(gsList, packedComparator)
+		allocation = findReadyGameServerForAllocation(gsList, packedComparator, "")
 	case v1alpha1.Distributed:
-		allocation = findReadyGameServerForAllocation(gsList, distributedComparator)
+		allocation = findReadyGameServerForAllocation(gsList, distributedComparator, "")
+	case v1alpha1.Manual:
+		fmt.Println("[DEBUG] gameServerName", gameServerName)
+		if gameServerName == "" {
+			return allocation, ErrMissingGameServerName
+		}
+		allocation = findReadyGameServerForAllocation(gsList, nil, gameServerName)
+		fmt.Println("[DEBUG] allocation", allocation)
+		if allocation == nil {
+			return allocation, ErrInvalidGameServer
+		}
 	}
 
 	if allocation == nil {

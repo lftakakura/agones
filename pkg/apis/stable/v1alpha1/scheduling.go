@@ -28,6 +28,9 @@ const (
 	// This is most useful for statically sized Kubernetes clusters - such as on physical hardware.
 	// In future versions, this will also impact Fleet scale down, and Pod Scheduling.
 	Distributed SchedulingStrategy = "Distributed"
+
+	// Manual scheduling strategy will try to allocate a GameServer with a specific name.
+	Manual SchedulingStrategy = "Manual"
 )
 
 // SchedulingStrategy is the strategy that a Fleet & GameServers will use
