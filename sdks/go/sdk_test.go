@@ -126,6 +126,7 @@ var _ sdk.SDK_WatchGameServerClient = &watchMock{}
 type sdkMock struct {
 	ready       bool
 	shutdown    bool
+	allocated   bool
 	hm          *healthMock
 	wm          *watchMock
 	labels      map[string]string
@@ -152,6 +153,11 @@ func (m *sdkMock) GetGameServer(ctx context.Context, in *sdk.Empty, opts ...grpc
 
 func (m *sdkMock) Ready(ctx context.Context, e *sdk.Empty, opts ...grpc.CallOption) (*sdk.Empty, error) {
 	m.ready = true
+	return e, nil
+}
+
+func (m *sdkMock) Allocated(ctx context.Context, e *sdk.Empty, opts ...grpc.CallOption) (*sdk.Empty, error) {
+	m.allocated = true
 	return e, nil
 }
 

@@ -330,6 +330,14 @@ func (s *SDKServer) Ready(ctx context.Context, e *sdk.Empty) (*sdk.Empty, error)
 	return e, nil
 }
 
+// Allocated enters the Allocated state change for this GameServer into
+// the workqueue so it can be updated
+func (s *SDKServer) Allocated(ctx context.Context, e *sdk.Empty) (*sdk.Empty, error) {
+	s.logger.Info("Received Allocated request, adding to queue")
+	s.enqueueState(stablev1alpha1.GameServerStateAllocated)
+	return e, nil
+}
+
 // Shutdown enters the Shutdown state change for this GameServer into
 // the workqueue so it can be updated
 func (s *SDKServer) Shutdown(ctx context.Context, e *sdk.Empty) (*sdk.Empty, error) {

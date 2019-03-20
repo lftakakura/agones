@@ -28,6 +28,13 @@ service SDK {
             body: "*"
         };
     }
+    // Call when the GameServer is allocated
+    rpc Allocated (Empty) returns (Empty) {
+        option (google.api.http) = {
+            post: "/allocated"
+            body: "*"
+        };
+    }
     // Call when the GameServer is shutting down
     rpc Shutdown (Empty) returns (Empty) {
         option (google.api.http) = {

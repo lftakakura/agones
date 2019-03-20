@@ -121,6 +121,12 @@ func (l *LocalSDKServer) Ready(context.Context, *sdk.Empty) (*sdk.Empty, error) 
 	return &sdk.Empty{}, nil
 }
 
+// Allocated logs that the Allocated request has been received
+func (l *LocalSDKServer) Allocated(context.Context, *sdk.Empty) (*sdk.Empty, error) {
+	logrus.Info("Allocated request has been received!")
+	return &sdk.Empty{}, nil
+}
+
 // Shutdown logs that the shutdown request has been received
 func (l *LocalSDKServer) Shutdown(context.Context, *sdk.Empty) (*sdk.Empty, error) {
 	logrus.Info("Shutdown request has been received!")

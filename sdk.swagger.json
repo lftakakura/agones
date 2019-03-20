@@ -5,7 +5,8 @@
     "version": "version not set"
   },
   "schemes": [
-    "http"
+    "http",
+    "https"
   ],
   "consumes": [
     "application/json"
@@ -14,13 +15,40 @@
     "application/json"
   ],
   "paths": {
+    "/allocated": {
+      "post": {
+        "summary": "Call when the GameServer is allocated",
+        "operationId": "Allocated",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sdkEmpty"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/sdkEmpty"
+            }
+          }
+        ],
+        "tags": [
+          "SDK"
+        ]
+      }
+    },
     "/gameserver": {
       "get": {
         "summary": "Retrieve the current GameServer data",
         "operationId": "GetGameServer",
         "responses": {
           "200": {
-            "description": "",
+            "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/sdkGameServer"
             }
@@ -37,7 +65,7 @@
         "operationId": "Health",
         "responses": {
           "200": {
-            "description": "",
+            "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/sdkEmpty"
             }
@@ -65,7 +93,7 @@
         "operationId": "SetAnnotation",
         "responses": {
           "200": {
-            "description": "",
+            "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/sdkEmpty"
             }
@@ -92,7 +120,7 @@
         "operationId": "SetLabel",
         "responses": {
           "200": {
-            "description": "",
+            "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/sdkEmpty"
             }
@@ -119,7 +147,7 @@
         "operationId": "Ready",
         "responses": {
           "200": {
-            "description": "",
+            "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/sdkEmpty"
             }
@@ -146,7 +174,7 @@
         "operationId": "Shutdown",
         "responses": {
           "200": {
-            "description": "",
+            "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/sdkEmpty"
             }
@@ -173,9 +201,9 @@
         "operationId": "WatchGameServer",
         "responses": {
           "200": {
-            "description": "(streaming responses)",
+            "description": "A successful response.(streaming responses)",
             "schema": {
-              "$ref": "#/definitions/sdkGameServer"
+              "$ref": "#/x-stream-definitions/sdkGameServer"
             }
           }
         },
@@ -288,6 +316,43 @@
         }
       }
     },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeStreamError": {
+      "type": "object",
+      "properties": {
+        "grpc_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "http_status": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
     "sdkEmpty": {
       "type": "object",
       "title": "I am Empty"
@@ -318,6 +383,20 @@
         }
       },
       "title": "Key, Value entry"
+    }
+  },
+  "x-stream-definitions": {
+    "sdkGameServer": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/sdkGameServer"
+        },
+        "error": {
+          "$ref": "#/definitions/runtimeStreamError"
+        }
+      },
+      "title": "Stream result of sdkGameServer"
     }
   }
 }
